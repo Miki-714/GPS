@@ -1,747 +1,604 @@
-<!doctype html>
+Here is an HTML document that adds automatic location detection to the distance calculator, so you can find your current position with one click.
+```html
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
-    <title>Ethiopia Road Distance Calculator | Two-Point Location Input</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Ethiopia Road Distance | GPS Location + City Input</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-        background: #eef2f7;
-        margin: 0;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-      }
-      .container {
-        background: white;
-        border-radius: 28px;
-        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
-        max-width: 880px;
-        width: 100%;
-        overflow: hidden;
-      }
-      .header {
-        background: linear-gradient(135deg, #0b3b2a, #1e5e40);
-        color: white;
-        padding: 20px 28px;
-      }
-      .header h1 {
-        margin: 0;
-        font-weight: 700;
-        font-size: 1.7rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .header p {
-        margin: 8px 0 0;
-        opacity: 0.85;
-        font-size: 0.85rem;
-      }
-      .content {
-        padding: 24px 28px;
-      }
-      .dual-panel {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-bottom: 25px;
-      }
-      .location-card {
-        flex: 1;
-        background: #f9fbfd;
-        border-radius: 24px;
-        padding: 18px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        border: 1px solid #e9edf2;
-        transition: 0.2s;
-      }
-      .location-card.active {
-        border-left: 4px solid #008751;
-        background: #ffffff;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-      }
-      .card-title {
-        font-weight: 800;
-        font-size: 1.2rem;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .card-title i {
-        font-size: 1.3rem;
-      }
-      .input-method {
-        display: flex;
-        gap: 10px;
-        margin: 12px 0;
-        flex-wrap: wrap;
-      }
-      .btn-sm {
-        background: #eff3f6;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 40px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .btn-sm.active {
-        background: #008751;
-        color: white;
-      }
-      .coord-input {
-        margin-top: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .coord-row {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      .coord-row input {
-        flex: 1;
-        padding: 10px 12px;
-        border-radius: 32px;
-        border: 1px solid #cfdfe8;
-        font-size: 0.85rem;
-        background: white;
-      }
-      .btn-green {
-        background: #008751;
-        color: white;
-        border: none;
-        border-radius: 32px;
-        padding: 8px 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-      .btn-outline {
-        background: transparent;
-        border: 1px solid #008751;
-        color: #008751;
-      }
-      .selected-info {
-        margin-top: 15px;
-        background: #eef3ea;
-        border-radius: 20px;
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        word-break: break-all;
-      }
-      .badge-loc {
-        font-family: monospace;
-        background: white;
-        padding: 4px 10px;
-        border-radius: 40px;
-        display: inline-block;
-      }
-      #map {
-        height: 420px;
-        width: 100%;
-        border-radius: 24px;
-        border: 1px solid #dce5ec;
-        margin: 15px 0 20px;
-        z-index: 1;
-      }
-      .result-area {
-        background: #e9f4ef;
-        border-radius: 28px;
-        padding: 18px 22px;
-        text-align: center;
-        margin-top: 12px;
-      }
-      .distance-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #006241;
-        letter-spacing: -0.5px;
-      }
-      .distance-unit {
-        font-size: 1rem;
-        font-weight: 500;
-      }
-      .road-note {
-        font-size: 0.7rem;
-        margin-top: 8px;
-        color: #3b5c48;
-      }
-      .footer {
-        text-align: center;
-        padding: 12px;
-        font-size: 0.7rem;
-        background: #fafcfd;
-        border-top: 1px solid #e2e8f0;
-      }
-      button:active {
-        transform: scale(0.97);
-      }
-      @media (max-width: 680px) {
-        .content {
-          padding: 16px;
+        * {
+            box-sizing: border-box;
         }
-        .dual-panel {
-          flex-direction: column;
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .distance-value {
-          font-size: 1.5rem;
+        .app-container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            overflow: hidden;
         }
-      }
+        .hero {
+            background: linear-gradient(120deg, #0a3d2c, #1a6e4a);
+            color: white;
+            padding: 20px 26px;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 1.7rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero p {
+            margin: 8px 0 0;
+            opacity: 0.85;
+            font-size: 0.85rem;
+        }
+        .main-content {
+            padding: 24px 26px;
+        }
+        /* dual panel */
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 25px;
+        }
+        .card {
+            flex: 1;
+            background: #fefefe;
+            border-radius: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e6edf2;
+            transition: 0.2s;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 20px;
+            background: #fafcfd;
+            border-bottom: 1px solid #eef2f6;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        .card-body {
+            padding: 18px 20px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .btn {
+            border: none;
+            background: #f0f3f8;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #008751;
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #008751;
+            color: #008751;
+        }
+        .btn.active {
+            background: #008751;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,135,81,0.3);
+        }
+        .coord-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+        .input-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 60px;
+            border: 1px solid #cfdfe8;
+            font-size: 0.85rem;
+        }
+        .loc-status {
+            background: #f0f7f2;
+            padding: 10px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            margin-top: 16px;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        .gps-btn {
+            background: #2c6e49;
+            color: white;
+            width: 100%;
+            margin-top: 12px;
+        }
+        #map {
+            height: 380px;
+            width: 100%;
+            border-radius: 24px;
+            border: 1px solid #d0dfe8;
+            margin: 8px 0 16px;
+            z-index: 1;
+        }
+        .result-card {
+            background: #e9f3ef;
+            border-radius: 24px;
+            padding: 16px 22px;
+            text-align: center;
+            margin-top: 12px;
+        }
+        .distance-big {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #006241;
+            letter-spacing: -1px;
+        }
+        .small-note {
+            font-size: 0.7rem;
+            margin-top: 8px;
+            color: #3c6e53;
+        }
+        .badge-icon {
+            background: white;
+            border-radius: 60px;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+        footer {
+            background: #fafbfc;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.7rem;
+            border-top: 1px solid #e9edf2;
+        }
+        @media (max-width: 720px) {
+            .main-content { padding: 16px; }
+            .distance-big { font-size: 1.6rem; }
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1><i class="fas fa-route"></i> Ethiopia · Road Distance Finder</h1>
-        <p>
-          Exact driving distance using OpenStreetMap road network | Two
-          independent location inputs
-        </p>
-      </div>
-      <div class="content">
-        <!-- Dual input panel: Origin (Your Location) and Destination -->
-        <div class="dual-panel">
-          <!-- ORIGIN CARD -->
-          <div class="location-card" id="originCard">
-            <div class="card-title">
-              <i class="fas fa-location-dot" style="color: #008751"></i> 1. YOUR
-              LOCATION
-            </div>
-            <div class="input-method">
-              <button id="originMapBtn" class="btn-sm active">
-                <i class="fas fa-map-marker-alt"></i> Pick on Map
-              </button>
-              <button id="originCoordBtn" class="btn-sm">
-                <i class="fas fa-keyboard"></i> Enter Coordinates
-              </button>
-            </div>
-            <div id="originCoordPanel" style="display: none">
-              <div class="coord-input">
-                <div class="coord-row">
-                  <input
-                    type="text"
-                    id="originLat"
-                    placeholder="Latitude (e.g., 9.0104)"
-                    step="any"
-                  />
-                  <input
-                    type="text"
-                    id="originLon"
-                    placeholder="Longitude (e.g., 38.7615)"
-                  />
+</head>
+<body>
+<div class="app-container">
+    <div class="hero">
+        <h1><i class="fas fa-road"></i> Ethiopia Road Distance · GPS & Map</h1>
+        <p><i class="fas fa-location-dot"></i> Real driving distance using OpenStreetMap roads | Auto-detect your location</p>
+    </div>
+    <div class="main-content">
+        <div class="flex-row">
+            <!-- ORIGIN CARD (Your Location) -->
+            <div class="card" id="originCard">
+                <div class="card-header"><i class="fas fa-map-pin" style="color:#008751;"></i> 🟢 YOUR LOCATION</div>
+                <div class="card-body">
+                    <div class="btn-group">
+                        <button id="originMapBtn" class="btn active"><i class="fas fa-map-marker-alt"></i> Pick on map</button>
+                        <button id="originCoordBtn" class="btn"><i class="fas fa-keyboard"></i> Enter coords</button>
+                        <button id="originGpsBtn" class="btn btn-primary"><i class="fas fa-satellite-dish"></i> 🛰️ Detect my location</button>
+                    </div>
+                    <div id="originCoordPanel" style="display: none;">
+                        <div class="coord-inputs">
+                            <div class="input-row">
+                                <input type="number" step="any" id="originLat" placeholder="Latitude (e.g., 9.0104)">
+                                <input type="number" step="any" id="originLon" placeholder="Longitude (e.g., 38.7615)">
+                            </div>
+                            <button id="applyOriginCoords" class="btn btn-primary"><i class="fas fa-check"></i> Set custom</button>
+                        </div>
+                    </div>
+                    <div class="loc-status" id="originStatus">
+                        <i class="fas fa-info-circle"></i> <span>📍 Not set — use map, GPS, or coordinates</span>
+                    </div>
                 </div>
-                <button id="applyOriginCoords" class="btn-green">
-                  <i class="fas fa-check-circle"></i> Set Location
-                </button>
-              </div>
             </div>
-            <div id="originInfo" class="selected-info">
-              <i class="fas fa-info-circle"></i>
-              <span id="originStatus"
-                >⚡ Not set — click map or enter coords</span
-              >
-            </div>
-          </div>
 
-          <!-- DESTINATION CARD -->
-          <div class="location-card" id="destCard">
-            <div class="card-title">
-              <i class="fas fa-flag-checkered" style="color: #e67e22"></i> 2.
-              DESTINATION
-            </div>
-            <div class="input-method">
-              <button id="destMapBtn" class="btn-sm active">
-                <i class="fas fa-map-marker-alt"></i> Pick on Map
-              </button>
-              <button id="destCoordBtn" class="btn-sm">
-                <i class="fas fa-keyboard"></i> Enter Coordinates
-              </button>
-              <button id="destCityBtn" class="btn-sm">
-                <i class="fas fa-city"></i> City Preset
-              </button>
-            </div>
-            <div id="destCoordPanel" style="display: none">
-              <div class="coord-input">
-                <div class="coord-row">
-                  <input type="text" id="destLat" placeholder="Latitude" />
-                  <input type="text" id="destLon" placeholder="Longitude" />
+            <!-- DESTINATION CARD (flexible) -->
+            <div class="card" id="destCard">
+                <div class="card-header"><i class="fas fa-flag-checkered" style="color:#e67e22;"></i> 🏁 DESTINATION</div>
+                <div class="card-body">
+                    <div class="btn-group">
+                        <button id="destMapBtn" class="btn active"><i class="fas fa-map-marker-alt"></i> Pick on map</button>
+                        <button id="destCoordBtn" class="btn"><i class="fas fa-keyboard"></i> Enter coords</button>
+                        <button id="destCityBtn" class="btn"><i class="fas fa-city"></i> Ethiopian city</button>
+                    </div>
+                    <div id="destCoordPanel" style="display: none;">
+                        <div class="coord-inputs">
+                            <div class="input-row">
+                                <input type="number" step="any" id="destLat" placeholder="Latitude">
+                                <input type="number" step="any" id="destLon" placeholder="Longitude">
+                            </div>
+                            <button id="applyDestCoords" class="btn btn-primary"><i class="fas fa-check"></i> Set destination</button>
+                        </div>
+                    </div>
+                    <div id="destCityPanel" style="display: none;">
+                        <select id="citySelect" style="width:100%; padding:10px; border-radius:40px; margin-bottom:8px;">
+                            <option value="">-- Select major city --</option>
+                        </select>
+                        <button id="applyCity" class="btn btn-primary" style="width:100%;"><i class="fas fa-location-arrow"></i> Apply city</button>
+                    </div>
+                    <div class="loc-status" id="destStatus">
+                        <i class="fas fa-info-circle"></i> <span>📍 Choose destination via map, coordinates, or city</span>
+                    </div>
                 </div>
-                <button id="applyDestCoords" class="btn-green">
-                  <i class="fas fa-check-circle"></i> Set Destination
-                </button>
-              </div>
             </div>
-            <div id="destCityPanel" style="display: none">
-              <select
-                id="cityPresetSelect"
-                style="
-                  width: 100%;
-                  padding: 10px;
-                  border-radius: 30px;
-                  margin-top: 8px;
-                "
-              >
-                <option value="">-- Select Ethiopian City --</option>
-              </select>
-              <button
-                id="applyCityPreset"
-                class="btn-green"
-                style="margin-top: 10px; width: 100%"
-              >
-                <i class="fas fa-map-pin"></i> Apply City
-              </button>
-            </div>
-            <div id="destInfo" class="selected-info">
-              <i class="fas fa-info-circle"></i>
-              <span id="destStatus"
-                >📍 Not set — choose via map, coords, or city</span
-              >
-            </div>
-          </div>
         </div>
 
-        <!-- Map -->
+        <!-- LEAFLET MAP -->
         <div id="map"></div>
 
-        <!-- Distance Result -->
-        <div class="result-area" id="resultArea">
-          <i class="fas fa-road" style="font-size: 1.6rem; color: #008751"></i>
-          <div class="distance-value" id="distanceValue">— —</div>
-          <div id="distanceNote">
-            Click on map or set both locations to see REAL road distance
-          </div>
-          <div class="road-note">
-            <i class="fas fa-car"></i> Driving distance based on OSRM
-            (OpenStreetMap routing)
-          </div>
+        <!-- RESULT PANEL -->
+        <div class="result-card" id="resultPanel">
+            <div class="distance-big" id="distanceValue">— —</div>
+            <div id="distanceSub">🛣️ Real road distance (driving)</div>
+            <div class="small-note"><i class="fas fa-car-side"></i> Based on OSRM routing engine · street-level accuracy</div>
         </div>
-      </div>
-      <div class="footer">
-        <i class="fas fa-globe-africa"></i> Ethiopia road network | Exact
-        street-level distance | Click map to set active location
-      </div>
     </div>
+    <footer>
+        <i class="fas fa-globe-africa"></i> Ethiopia road network · Click map to assign active point (green = origin / orange = destination)
+    </footer>
+</div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-      // ---------- STATE ----------
-      let originPoint = null; // { lat, lng }
-      let destinationPoint = null; // { lat, lng }
-
-      let activeInputMode = "origin"; // 'origin' or 'destination' -> which point we assign by map click
-
-      let originMarker = null;
-      let destMarker = null;
-      let currentRoutePolyline = null;
-
-      // City database
-      const ethiopiaCities = [
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // ---------- GLOBALS ----------
+    let originPoint = null;      // { lat, lng }
+    let destinationPoint = null;
+    let activeInputMode = "origin";   // "origin" or "destination" (map click assignment)
+    
+    let originMarker = null;
+    let destMarker = null;
+    let currentPolyline = null;
+    
+    // Ethiopian cities DB
+    const ethiopianCities = [
         { name: "Addis Ababa (Meskel Square)", lat: 9.0104, lon: 38.7615 },
         { name: "Haramaya University", lat: 9.4124, lon: 42.0221 },
         { name: "Adama (Nazret)", lat: 8.5414, lon: 39.2689 },
         { name: "Hawassa Center", lat: 7.0481, lon: 38.4786 },
-        { name: "Bahir Dar", lat: 11.5948, lon: 37.388 },
+        { name: "Bahir Dar", lat: 11.5948, lon: 37.3880 },
         { name: "Dire Dawa", lat: 9.5913, lon: 41.8566 },
         { name: "Mekele", lat: 13.4967, lon: 39.4768 },
         { name: "Gondar", lat: 12.6075, lon: 37.4592 },
         { name: "Jimma", lat: 7.6667, lon: 36.8333 },
         { name: "Dessie", lat: 11.1278, lon: 39.6369 },
-        { name: "Arba Minch", lat: 6.0333, lon: 37.55 },
-        { name: "Jijiga", lat: 9.35, lon: 42.8 },
+        { name: "Arba Minch", lat: 6.0333, lon: 37.5500 },
+        { name: "Jijiga", lat: 9.3500, lon: 42.8000 },
         { name: "Lalibela", lat: 12.0329, lon: 39.0476 },
-      ];
-
-      // Initialize Map
-      const map = L.map("map").setView([9.5, 40.0], 6);
-      L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors',
-          subdomains: "abcd",
-          maxZoom: 18,
-        },
-      ).addTo(map);
-
-      // custom icons
-      function createOriginIcon() {
-        return L.divIcon({
-          html: '<i class="fas fa-circle" style="color:#008751; font-size:22px; text-shadow:0 0 2px white;"></i><span style="font-weight:bold; background:white; border-radius:12px; padding:0 6px; font-size:10px; position:relative; top:-20px;">START</span>',
-          iconSize: [28, 28],
-          className: "custom-origin",
-        });
-      }
-      function createDestIcon() {
-        return L.divIcon({
-          html: '<i class="fas fa-flag-checkered" style="color:#e67e22; font-size:26px;"></i>',
-          iconSize: [26, 26],
-          className: "custom-dest",
-        });
-      }
-
-      // Routing via OSRM (driving)
-      async function fetchRoadDistance(startLat, startLon, endLat, endLon) {
-        const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
+        { name: "Debre Markos", lat: 10.3333, lon: 37.7333 }
+    ];
+    
+    // ---------- MAP INIT ----------
+    const map = L.map('map').setView([9.2, 40.2], 6);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors',
+        subdomains: 'abcd',
+        maxZoom: 17
+    }).addTo(map);
+    L.control.scale({ metric: true, imperial: false }).addTo(map);
+    
+    // custom icons
+    function originIcon() {
+        return L.divIcon({ html: '<div style="background:#008751; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 0 0 2px #008751;"><i class="fas fa-play" style="color:white; font-size:12px; margin-left:2px;"></i></div>', iconSize: [28,28], className: 'custom-origin' });
+    }
+    function destIcon() {
+        return L.divIcon({ html: '<div style="background:#e67e22; width:28px; height:28px; border-radius:8px 28px 28px 28px; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-flag-checkered" style="color:white; font-size:14px;"></i></div>', iconSize: [28,28], className: 'custom-dest' });
+    }
+    
+    // ---------- OSRM ROAD ROUTING (exact distance) ----------
+    async function fetchRoadDistance(startLat, startLng, endLat, endLng) {
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
         try {
-          const resp = await fetch(url);
-          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          const data = await resp.json();
-          if (data.code !== "Ok" || !data.routes || data.routes.length === 0)
-            throw new Error("No road route");
-          const route = data.routes[0];
-          const distanceKM = route.distance / 1000;
-          const geometry = route.geometry;
-          return { distanceKM, geometry };
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            if (data.code !== "Ok" || !data.routes || data.routes.length === 0) throw new Error("No driving route found");
+            const route = data.routes[0];
+            const distanceKM = route.distance / 1000;
+            return { distanceKM, geometry: route.geometry };
         } catch (err) {
-          console.error("Routing error:", err);
-          return { distanceKM: null, geometry: null, error: err.message };
+            console.warn(err);
+            return { distanceKM: null, geometry: null, error: err.message };
         }
-      }
-
-      // Draw route and update distance display
-      async function updateDistanceAndRoute() {
+    }
+    
+    // Update route + display
+    async function computeAndDrawRoute() {
         if (!originPoint || !destinationPoint) {
-          const resultDiv = document.getElementById("distanceValue");
-          const noteDiv = document.getElementById("distanceNote");
-          if (!originPoint && !destinationPoint) {
-            resultDiv.innerHTML = "— —";
-            noteDiv.innerHTML =
-              "⚠️ Please set both YOUR LOCATION and DESTINATION";
-          } else if (!originPoint) {
-            resultDiv.innerHTML = "— —";
-            noteDiv.innerHTML = "📍 Set your starting location first";
-          } else {
-            resultDiv.innerHTML = "— —";
-            noteDiv.innerHTML = "🏁 Set destination point";
-          }
-          // clear route line
-          if (currentRoutePolyline) map.removeLayer(currentRoutePolyline);
-          currentRoutePolyline = null;
-          return;
+            const distDiv = document.getElementById('distanceValue');
+            if (!originPoint && !destinationPoint) distDiv.innerHTML = "❓ Set both locations";
+            else if (!originPoint) distDiv.innerHTML = "📍 Set your location first";
+            else distDiv.innerHTML = "🏁 Set destination";
+            document.getElementById('distanceSub').innerHTML = "Use map, GPS, or city selection";
+            if (currentPolyline) map.removeLayer(currentPolyline);
+            currentPolyline = null;
+            return;
         }
-
-        // Show loading
-        document.getElementById("distanceValue").innerHTML =
-          '<i class="fas fa-spinner fa-pulse"></i> routing...';
-        document.getElementById("distanceNote").innerHTML =
-          "Fetching exact road distance via OSM roads";
-
-        const res = await fetchRoadDistance(
-          originPoint.lat,
-          originPoint.lng,
-          destinationPoint.lat,
-          destinationPoint.lng,
-        );
-
+        
+        // show loading
+        document.getElementById('distanceValue').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> routing...';
+        document.getElementById('distanceSub').innerHTML = 'Fetching real road network data';
+        
+        const res = await fetchRoadDistance(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng);
+        
         if (res.distanceKM !== null && !res.error) {
-          document.getElementById("distanceValue").innerHTML =
-            `${res.distanceKM.toFixed(2)} <span class="distance-unit">km</span>`;
-          document.getElementById("distanceNote").innerHTML =
-            `🛣️ Driving distance along Ethiopian roads | ${res.distanceKM.toFixed(2)} km`;
-          // draw polyline
-          if (currentRoutePolyline) map.removeLayer(currentRoutePolyline);
-          if (res.geometry && res.geometry.coordinates) {
-            const latlngs = res.geometry.coordinates.map((coord) => [
-              coord[1],
-              coord[0],
-            ]);
-            currentRoutePolyline = L.polyline(latlngs, {
-              color: "#2c6e49",
-              weight: 5,
-              opacity: 0.9,
-              lineJoin: "round",
-            }).addTo(map);
-            map.fitBounds(currentRoutePolyline.getBounds(), {
-              padding: [45, 45],
-            });
-          } else {
-            // fallback line
-            currentRoutePolyline = L.polyline(
-              [
-                [originPoint.lat, originPoint.lng],
-                [destinationPoint.lat, destinationPoint.lng],
-              ],
-              { color: "#2c6e49", weight: 4, dashArray: "6,6" },
-            ).addTo(map);
-            map.fitBounds(currentRoutePolyline.getBounds(), {
-              padding: [45, 45],
-            });
-          }
+            const km = res.distanceKM;
+            document.getElementById('distanceValue').innerHTML = `${km.toFixed(2)} <span style="font-size:1rem;">km</span>`;
+            document.getElementById('distanceSub').innerHTML = `🚗 Driving distance · ${km.toFixed(2)} kilometers (Ethiopian roads)`;
+            
+            if (currentPolyline) map.removeLayer(currentPolyline);
+            if (res.geometry && res.geometry.coordinates) {
+                const latlngs = res.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                currentPolyline = L.polyline(latlngs, { color: "#1f6e43", weight: 5, opacity: 0.9, lineJoin: "round" }).addTo(map);
+                map.fitBounds(currentPolyline.getBounds(), { padding: [40, 40] });
+            } else {
+                // fallback line
+                currentPolyline = L.polyline([[originPoint.lat, originPoint.lng], [destinationPoint.lat, destinationPoint.lng]], { color: "#1f6e43", weight: 4, dashArray: "5,8" }).addTo(map);
+                map.fitBounds(currentPolyline.getBounds(), { padding: [40, 40] });
+            }
         } else {
-          document.getElementById("distanceValue").innerHTML = "⚠️ Error";
-          document.getElementById("distanceNote").innerHTML =
-            `Routing failed: ${res.error || "No road connection"}. Try different points.`;
-          if (currentRoutePolyline) map.removeLayer(currentRoutePolyline);
+            document.getElementById('distanceValue').innerHTML = "⚠️ No road link";
+            document.getElementById('distanceSub').innerHTML = `Routing failed: ${res.error || 'Try different points or check network'}`;
+            if (currentPolyline) map.removeLayer(currentPolyline);
         }
-      }
-
-      // Update markers on map and refresh route
-      function refreshVisualsAndRoute() {
-        // origin marker
+        // refresh markers overlay
+        updateMarkersAndStatusText();
+    }
+    
+    function updateMarkersAndStatusText() {
+        // update markers
         if (originMarker) map.removeLayer(originMarker);
         if (originPoint) {
-          originMarker = L.marker([originPoint.lat, originPoint.lng], {
-            icon: createOriginIcon(),
-          }).addTo(map);
-          originMarker
-            .bindPopup("<b>📍 Your location</b><br>Starting point")
-            .openPopup();
+            originMarker = L.marker([originPoint.lat, originPoint.lng], { icon: originIcon() }).addTo(map);
+            originMarker.bindPopup("<b>📍 Start point</b><br>Your location").openPopup();
         }
-        // dest marker
         if (destMarker) map.removeLayer(destMarker);
         if (destinationPoint) {
-          destMarker = L.marker([destinationPoint.lat, destinationPoint.lng], {
-            icon: createDestIcon(),
-          }).addTo(map);
-          destMarker.bindPopup("<b>🏁 Destination</b>").openPopup();
+            destMarker = L.marker([destinationPoint.lat, destinationPoint.lng], { icon: destIcon() }).addTo(map);
+            destMarker.bindPopup("<b>🏁 Destination</b>").openPopup();
         }
-        // update text status
-        document.getElementById("originStatus").innerHTML = originPoint
-          ? `${originPoint.lat.toFixed(5)}, ${originPoint.lng.toFixed(5)}`
-          : "❌ Not set";
-        document.getElementById("destStatus").innerHTML = destinationPoint
-          ? `${destinationPoint.lat.toFixed(5)}, ${destinationPoint.lng.toFixed(5)}`
-          : "❌ Not set";
-
-        // call distance
-        updateDistanceAndRoute();
-      }
-
-      // ----- SET origin manually -----
-      function setOrigin(lat, lng) {
+        
+        // update status texts
+        document.getElementById('originStatus').innerHTML = `<i class="fas fa-location-dot"></i> ${originPoint ? `${originPoint.lat.toFixed(5)}, ${originPoint.lng.toFixed(5)}` : '❌ Not set — use GPS, map click or coordinates'}`;
+        document.getElementById('destStatus').innerHTML = `<i class="fas fa-location-dot"></i> ${destinationPoint ? `${destinationPoint.lat.toFixed(5)}, ${destinationPoint.lng.toFixed(5)}` : '❌ Choose via map, city or coords'}`;
+    }
+    
+    // setters
+    function setOrigin(lat, lng, source = "manual") {
         originPoint = { lat, lng };
-        refreshVisualsAndRoute();
-        // highlight origin card
-        document.getElementById("originCard").classList.add("active");
-        document.getElementById("destCard").classList.remove("active");
-      }
-
-      function setDestination(lat, lng) {
+        updateMarkersAndStatusText();
+        computeAndDrawRoute();
+        // highlight card
+        document.getElementById('originCard').style.borderLeft = "3px solid #008751";
+        document.getElementById('destCard').style.borderLeft = "none";
+        activeInputMode = 'origin';
+    }
+    
+    function setDestination(lat, lng, source = "manual") {
         destinationPoint = { lat, lng };
-        refreshVisualsAndRoute();
-        document.getElementById("destCard").classList.add("active");
-        document.getElementById("originCard").classList.remove("active");
-      }
-
-      // MAP CLICK handler based on active mode
-      function onMapClick(e) {
-        const { lat, lng } = e.latlng;
-        if (activeInputMode === "origin") {
-          setOrigin(lat, lng);
-          // Optionally show toast
-          document.getElementById("originStatus").innerHTML =
-            `${lat.toFixed(5)}, ${lng.toFixed(5)} (map)`;
-        } else {
-          setDestination(lat, lng);
-          document.getElementById("destStatus").innerHTML =
-            `${lat.toFixed(5)}, ${lng.toFixed(5)} (map)`;
+        updateMarkersAndStatusText();
+        computeAndDrawRoute();
+        document.getElementById('destCard').style.borderLeft = "3px solid #e67e22";
+        document.getElementById('originCard').style.borderLeft = "none";
+        activeInputMode = 'destination';
+    }
+    
+    // ----- LOCATION DETECTION (GPS) -----
+    function detectMyLocation() {
+        if (!navigator.geolocation) {
+            alert("Your browser doesn't support Geolocation. Please enter coordinates or click map.");
+            return;
         }
-      }
-      map.on("click", onMapClick);
-
-      // ----- UI BUTTONS & TOGGLE -----
-      // origin buttons
-      const originMapBtn = document.getElementById("originMapBtn");
-      const originCoordBtn = document.getElementById("originCoordBtn");
-      const originCoordPanel = document.getElementById("originCoordPanel");
-      const applyOriginCoords = document.getElementById("applyOriginCoords");
-      const originLatInput = document.getElementById("originLat");
-      const originLonInput = document.getElementById("originLon");
-
-      originMapBtn.addEventListener("click", () => {
-        activeInputMode = "origin";
-        originMapBtn.classList.add("active");
-        originCoordBtn.classList.remove("active");
-        originCoordPanel.style.display = "none";
-        document.getElementById("originCard").classList.add("active");
-        document.getElementById("destCard").classList.remove("active");
-        // visual feedback
-        document.getElementById("originStatus").innerHTML = originPoint
-          ? `${originPoint.lat.toFixed(5)}, ${originPoint.lng.toFixed(5)} (map mode)`
-          : "⚡ Click map to set origin";
-      });
-      originCoordBtn.addEventListener("click", () => {
-        activeInputMode = "origin";
-        originCoordBtn.classList.add("active");
-        originMapBtn.classList.remove("active");
-        originCoordPanel.style.display = "block";
-        document.getElementById("originCard").classList.add("active");
-        document.getElementById("destCard").classList.remove("active");
-      });
-      applyOriginCoords.addEventListener("click", () => {
-        const lat = parseFloat(originLatInput.value);
-        const lng = parseFloat(originLonInput.value);
-        if (
-          isNaN(lat) ||
-          isNaN(lng) ||
-          lat < 3 ||
-          lat > 15 ||
-          lng < 32 ||
-          lng > 48
-        ) {
-          alert(
-            "Please enter valid Ethiopian coordinates (Lat ~3-15, Lon ~32-48)",
-          );
-          return;
+        const statusDiv = document.getElementById('originStatus');
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Fetching GPS position...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                // check if within Ethiopia roughly
+                if (lat < 3 || lat > 15 || lng < 33 || lng > 48) {
+                    alert(`Coordinates (${lat.toFixed(2)}, ${lng.toFixed(2)}) are outside Ethiopia range. Still setting location but road network may be limited.`);
+                }
+                setOrigin(lat, lng);
+                statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)} (auto-detected)`;
+                // also zoom to location
+                map.setView([lat, lng], 12);
+            },
+            (error) => {
+                let msg = "GPS failed: ";
+                if (error.code === 1) msg += "Permission denied. Allow location access.";
+                else if (error.code === 2) msg += "Position unavailable.";
+                else msg += error.message;
+                alert(msg);
+                document.getElementById('originStatus').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg}`;
+            },
+            { enableHighAccuracy: true, timeout: 15000 }
+        );
+    }
+    
+    // ---------- UI Interactions ----------
+    // Origin mode toggles
+    const originMapBtn = document.getElementById('originMapBtn');
+    const originCoordBtn = document.getElementById('originCoordBtn');
+    const originGpsBtn = document.getElementById('originGpsBtn');
+    const originCoordPanel = document.getElementById('originCoordPanel');
+    const applyOriginCoords = document.getElementById('applyOriginCoords');
+    const originLat = document.getElementById('originLat');
+    const originLon = document.getElementById('originLon');
+    
+    originMapBtn.addEventListener('click', () => {
+        activeInputMode = 'origin';
+        originMapBtn.classList.add('active');
+        originCoordBtn.classList.remove('active');
+        originCoordPanel.style.display = 'none';
+        document.getElementById('originCard').style.borderLeft = "3px solid #008751";
+        document.getElementById('destCard').style.borderLeft = "none";
+    });
+    originCoordBtn.addEventListener('click', () => {
+        activeInputMode = 'origin';
+        originCoordBtn.classList.add('active');
+        originMapBtn.classList.remove('active');
+        originCoordPanel.style.display = 'block';
+        document.getElementById('originCard').style.borderLeft = "3px solid #008751";
+        document.getElementById('destCard').style.borderLeft = "none";
+    });
+    originGpsBtn.addEventListener('click', () => {
+        detectMyLocation();
+    });
+    applyOriginCoords.addEventListener('click', () => {
+        let lat = parseFloat(originLat.value);
+        let lng = parseFloat(originLon.value);
+        if (isNaN(lat) || isNaN(lng)) {
+            alert("Enter valid latitude and longitude");
+            return;
         }
         setOrigin(lat, lng);
-        originCoordPanel.style.display = "none";
-        originMapBtn.classList.add("active");
-        originCoordBtn.classList.remove("active");
-        document.getElementById("originStatus").innerHTML =
-          `${lat.toFixed(5)}, ${lng.toFixed(5)} (manual)`;
-      });
-
-      // Destination panel
-      const destMapBtn = document.getElementById("destMapBtn");
-      const destCoordBtn = document.getElementById("destCoordBtn");
-      const destCityBtn = document.getElementById("destCityBtn");
-      const destCoordPanel = document.getElementById("destCoordPanel");
-      const destCityPanel = document.getElementById("destCityPanel");
-      const applyDestCoords = document.getElementById("applyDestCoords");
-      const destLatInput = document.getElementById("destLat");
-      const destLonInput = document.getElementById("destLon");
-      const cityPresetSelect = document.getElementById("cityPresetSelect");
-      const applyCityPreset = document.getElementById("applyCityPreset");
-
-      destMapBtn.addEventListener("click", () => {
-        activeInputMode = "destination";
-        destMapBtn.classList.add("active");
-        destCoordBtn.classList.remove("active");
-        destCityBtn.classList.remove("active");
-        destCoordPanel.style.display = "none";
-        destCityPanel.style.display = "none";
-        document.getElementById("destCard").classList.add("active");
-        document.getElementById("originCard").classList.remove("active");
-        document.getElementById("destStatus").innerHTML = destinationPoint
-          ? `${destinationPoint.lat.toFixed(5)}, ${destinationPoint.lng.toFixed(5)} (map mode)`
-          : "📍 Click map to set destination";
-      });
-      destCoordBtn.addEventListener("click", () => {
-        activeInputMode = "destination";
-        destCoordBtn.classList.add("active");
-        destMapBtn.classList.remove("active");
-        destCityBtn.classList.remove("active");
-        destCoordPanel.style.display = "block";
-        destCityPanel.style.display = "none";
-        document.getElementById("destCard").classList.add("active");
-        document.getElementById("originCard").classList.remove("active");
-      });
-      destCityBtn.addEventListener("click", () => {
-        activeInputMode = "destination";
-        destCityBtn.classList.add("active");
-        destMapBtn.classList.remove("active");
-        destCoordBtn.classList.remove("active");
-        destCityPanel.style.display = "block";
-        destCoordPanel.style.display = "none";
-        document.getElementById("destCard").classList.add("active");
-        document.getElementById("originCard").classList.remove("active");
-        // populate city dropdown
-        cityPresetSelect.innerHTML =
-          '<option value="">-- Choose city --</option>';
-        ethiopiaCities.forEach((city) => {
-          const opt = document.createElement("option");
-          opt.value = JSON.stringify({
-            lat: city.lat,
-            lon: city.lon,
-            name: city.name,
-          });
-          opt.textContent = city.name;
-          cityPresetSelect.appendChild(opt);
-        });
-      });
-      applyDestCoords.addEventListener("click", () => {
-        const lat = parseFloat(destLatInput.value);
-        const lng = parseFloat(destLonInput.value);
-        if (
-          isNaN(lat) ||
-          isNaN(lng) ||
-          lat < 3 ||
-          lat > 15 ||
-          lng < 32 ||
-          lng > 48
-        ) {
-          alert("Enter valid Ethiopian coordinates");
-          return;
+        originCoordPanel.style.display = 'none';
+        originMapBtn.classList.add('active');
+        originCoordBtn.classList.remove('active');
+    });
+    
+    // Destination panel logic
+    const destMapBtn = document.getElementById('destMapBtn');
+    const destCoordBtn = document.getElementById('destCoordBtn');
+    const destCityBtn = document.getElementById('destCityBtn');
+    const destCoordPanel = document.getElementById('destCoordPanel');
+    const destCityPanel = document.getElementById('destCityPanel');
+    const applyDestCoords = document.getElementById('applyDestCoords');
+    const destLat = document.getElementById('destLat');
+    const destLon = document.getElementById('destLon');
+    const citySelect = document.getElementById('citySelect');
+    const applyCity = document.getElementById('applyCity');
+    
+    // populate city dropdown
+    ethiopianCities.forEach(city => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify({ lat: city.lat, lon: city.lon, name: city.name });
+        opt.textContent = city.name;
+        citySelect.appendChild(opt);
+    });
+    
+    destMapBtn.addEventListener('click', () => {
+        activeInputMode = 'destination';
+        destMapBtn.classList.add('active');
+        destCoordBtn.classList.remove('active');
+        destCityBtn.classList.remove('active');
+        destCoordPanel.style.display = 'none';
+        destCityPanel.style.display = 'none';
+        document.getElementById('destCard').style.borderLeft = "3px solid #e67e22";
+        document.getElementById('originCard').style.borderLeft = "none";
+    });
+    destCoordBtn.addEventListener('click', () => {
+        activeInputMode = 'destination';
+        destCoordBtn.classList.add('active');
+        destMapBtn.classList.remove('active');
+        destCityBtn.classList.remove('active');
+        destCoordPanel.style.display = 'block';
+        destCityPanel.style.display = 'none';
+        document.getElementById('destCard').style.borderLeft = "3px solid #e67e22";
+        document.getElementById('originCard').style.borderLeft = "none";
+    });
+    destCityBtn.addEventListener('click', () => {
+        activeInputMode = 'destination';
+        destCityBtn.classList.add('active');
+        destMapBtn.classList.remove('active');
+        destCoordBtn.classList.remove('active');
+        destCityPanel.style.display = 'block';
+        destCoordPanel.style.display = 'none';
+        document.getElementById('destCard').style.borderLeft = "3px solid #e67e22";
+        document.getElementById('originCard').style.borderLeft = "none";
+    });
+    applyDestCoords.addEventListener('click', () => {
+        let lat = parseFloat(destLat.value);
+        let lng = parseFloat(destLon.value);
+        if (isNaN(lat) || isNaN(lng)) {
+            alert("Enter valid coordinates");
+            return;
         }
         setDestination(lat, lng);
-        destCoordPanel.style.display = "none";
-        destMapBtn.classList.add("active");
-        destCoordBtn.classList.remove("active");
-        destCityBtn.classList.remove("active");
-        document.getElementById("destStatus").innerHTML =
-          `${lat.toFixed(5)}, ${lng.toFixed(5)} (coords)`;
-      });
-      applyCityPreset.addEventListener("click", () => {
-        const val = cityPresetSelect.value;
+        destCoordPanel.style.display = 'none';
+        destMapBtn.classList.add('active');
+        destCoordBtn.classList.remove('active');
+        destCityBtn.classList.remove('active');
+    });
+    applyCity.addEventListener('click', () => {
+        const val = citySelect.value;
         if (!val) {
-          alert("Please select a city from the list");
-          return;
+            alert("Select a city from the list");
+            return;
         }
         const city = JSON.parse(val);
         setDestination(city.lat, city.lon);
-        destCityPanel.style.display = "none";
-        destMapBtn.classList.add("active");
-        destCoordBtn.classList.remove("active");
-        destCityBtn.classList.remove("active");
-        document.getElementById("destStatus").innerHTML =
-          `${city.name} (${city.lat}, ${city.lon})`;
-      });
-
-      // optional: set initial demo origin & dest so user sees map and can click
-      // but we want empty first? better show example but allow user to override.
-      // Set default demo locations to showcase Ethiopia (optional)
-      setOrigin(9.0104, 38.7615); // Addis Ababa as example start
-      setDestination(11.5948, 37.388); // Bahir Dar
-      // update ui to show demo coordinates
-      document.getElementById("originStatus").innerHTML =
-        `9.01040, 38.76150 (demo start)`;
-      document.getElementById("destStatus").innerHTML =
-        `Bahir Dar (11.5948, 37.3880)`;
-      // reset active mode to origin, but ensure map clicks can change both.
-      activeInputMode = "origin";
-      originMapBtn.classList.add("active");
-      destMapBtn.classList.remove("active");
-      originCoordBtn.classList.remove("active");
-      destCoordBtn.classList.remove("active");
-      destCityBtn.classList.remove("active");
-      originCoordPanel.style.display = "none";
-      destCoordPanel.style.display = "none";
-      destCityPanel.style.display = "none";
-
-      // small helper for initial route load
-      setTimeout(() => {
-        refreshVisualsAndRoute();
-      }, 200);
-
-      // Additional style fixes and scale
-      L.control.scale({ metric: true }).addTo(map);
-    </script>
-  </body>
+        destCityPanel.style.display = 'none';
+        destMapBtn.classList.add('active');
+        destCoordBtn.classList.remove('active');
+        destCityBtn.classList.remove('active');
+        document.getElementById('destStatus').innerHTML = `<i class="fas fa-city"></i> ${city.name} (${city.lat}, ${city.lon})`;
+    });
+    
+    // Map click: assign to active mode
+    map.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        if (activeInputMode === 'origin') {
+            setOrigin(lat, lng);
+            document.getElementById('originStatus').innerHTML = `<i class="fas fa-map-marked-alt"></i> Map selection: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        } else {
+            setDestination(lat, lng);
+            document.getElementById('destStatus').innerHTML = `<i class="fas fa-map-marked-alt"></i> Map selection: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        }
+    });
+    
+    // Set demo default: Addis Ababa (origin) and Bahir Dar (destination) to preview but user can change
+    // but we want clean start? Actually make a helpful example but not mandatory
+    // Provide initial default so map shows something beautiful
+    setOrigin(9.0104, 38.7615);
+    setDestination(11.5948, 37.3880);
+    document.getElementById('originStatus').innerHTML = `<i class="fas fa-map-pin"></i> Addis Ababa (demo) · click map or use GPS`;
+    document.getElementById('destStatus').innerHTML = `<i class="fas fa-flag-checkered"></i> Bahir Dar (demo)`;
+    // reset active mode to origin for clarity
+    activeInputMode = 'origin';
+    originMapBtn.classList.add('active');
+    destMapBtn.classList.remove('active');
+    originCoordBtn.classList.remove('active');
+    originCoordPanel.style.display = 'none';
+    destCoordPanel.style.display = 'none';
+    destCityPanel.style.display = 'none';
+    
+    // final call to draw initial route
+    setTimeout(() => {
+        computeAndDrawRoute();
+    }, 200);
+</script>
+</body>
 </html>
+```
