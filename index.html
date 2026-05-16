@@ -139,7 +139,6 @@
     </div>
 
     <script>
-        // Comprehensive list of major Ethiopian cities and locations
         const ethiopianCities = [
             { name: "Addis Ababa (Meskel Square)", lat: 9.0104, lon: 38.7615 },
             { name: "Adama (Nazret)", lat: 8.5414, lon: 39.2689 },
@@ -162,7 +161,6 @@
             { name: "Sodo (Wolaita)", lat: 6.8642, lon: 37.7628 }
         ];
 
-        // Populate dropdown selectors on window load
         window.onload = function() {
             const startSelect = document.getElementById('startPreset');
             const destSelect = document.getElementById('destPreset');
@@ -180,7 +178,6 @@
             });
         };
 
-        // When user picks a city from dropdown, push values to inputs
         function applyPreset(type, index) {
             if (index === "") return;
             const city = ethiopianCities[index];
@@ -193,9 +190,8 @@
             }
         }
 
-        // Haversine Math Formula
         function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius in KM
+            const R = 6371; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -205,57 +201,56 @@
             return R * c;
         }
 
-        // Advanced Location Fetcher: Tries Browser GPS, falls back to SECURE IP Geolocation
         document.getElementById('useGpsBtn').addEventListener('click', () => {
             const btn = document.getElementById('useGpsBtn');
-            btn.textContent = "⌛ Trying Browser GPS...";
+            btn.textContent = "⌛ Checking Device GPS...";
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        // High precision device GPS succeeded
                         document.getElementById('startLat').value = position.coords.latitude.toFixed(6);
                         document.getElementById('startLon').value = position.coords.longitude.toFixed(6);
                         document.getElementById('startPreset').value = ""; 
                         btn.textContent = "📍 Location Loaded (Device GPS)";
                     },
                     (error) => {
-                        // Browser GPS failed or was blocked. Switching to network IP geolocation via HTTPS.
-                        btn.textContent = "🌐 GPS failed. Fetching via HTTPS Network IP...";
+                        // Fallback to secure proxy for ip-api.com
+                        btn.textContent = "🌐 Using Secure Network Fallback...";
                         fetchIpLocation(btn);
                     },
-                    { enableHighAccuracy: true, timeout: 5000 }
+                    { enableHighAccuracy: true, timeout: 6000 }
                 );
             } else {
                 fetchIpLocation(btn);
             }
         });
 
-        // Fallback function using a free HTTPS-supported IP API 
+        // Safe fetch through AllOrigins HTTPS wrapper proxy
         function fetchIpLocation(buttonElement) {
-            fetch('https://ipapi.co/json/')
+            const targetUrl = encodeURIComponent('http://ip-api.com/json/');
+            
+            fetch(`https://api.allorigins.win/raw?url=${targetUrl}`)
                 .then(response => {
-                    if (!response.ok) throw new Error('Network response error');
+                    if (!response.ok) throw new Error('Proxy connection issue');
                     return response.json();
                 })
                 .then(data => {
-                    if (data && data.latitude && data.longitude) {
-                        document.getElementById('startLat').value = data.latitude.toFixed(6);
-                        document.getElementById('startLon').value = data.longitude.toFixed(6);
+                    if (data && data.status === 'success') {
+                        document.getElementById('startLat').value = data.lat.toFixed(6);
+                        document.getElementById('startLon').value = data.lon.toFixed(6);
                         document.getElementById('startPreset').value = ""; 
                         buttonElement.textContent = `📍 Location Loaded (Network: ${data.city || 'Ethiopia'})`;
                     } else {
-                        throw new Error('Invalid data format received');
+                        throw new Error('Geolocate query unsuccessful');
                     }
                 })
                 .catch(err => {
-                    console.error("IP Geolocation Error: ", err);
-                    alert("Could not detect location automatically over HTTPS. Please use the dropdown or input coordinates manually.");
+                    console.error("Secure IP Geolocation Error: ", err);
+                    alert("Unable to auto-detect. Please input your start coordinates manually or choose from the dropdown menu.");
                     buttonElement.textContent = "📍 Detect My Location (GPS + IP)";
                 });
         }
 
-        // Trigger Calculation process
         document.getElementById('calculateBtn').addEventListener('click', () => {
             const lat1 = parseFloat(document.getElementById('startLat').value);
             const lon1 = parseFloat(document.getElementById('startLon').value);
@@ -273,7 +268,6 @@
             const distance = calculateHaversineDistance(lat1, lon1, lat2, lon2);
             resultDiv.style.display = "block";
             resultDiv.style.borderLeftColor = "#008751";
-            
             resultDiv.innerHTML = `🏁 Distance: ${distance.toFixed(2)} KM`;
         });
     </script>
