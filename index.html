@@ -1,302 +1,281 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ethiopia Distance Calculator</title>
     <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f0f2f5;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 20px;
-      }
-      .container {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        max-width: 450px;
-        width: 100%;
-      }
-      h2 {
-        text-align: center;
-        color: #333;
-        margin-top: 0;
-        border-bottom: 2px solid #f0f2f5;
-        padding-bottom: 10px;
-      }
-      .input-group {
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px dashed #e4e6eb;
-      }
-      .input-group:last-of-type {
-        border-bottom: none;
-      }
-      label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #444;
-      }
-      select,
-      input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #cccccc;
-        border-radius: 6px;
-        font-size: 14px;
-        box-sizing: border-box;
-        margin-bottom: 8px;
-        background-color: #fff;
-      }
-      .coordinates-row {
-        display: flex;
-        gap: 10px;
-      }
-      .gps-btn {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        font-size: 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-bottom: 8px;
-        font-weight: bold;
-        width: 100%;
-      }
-      .gps-btn:hover {
-        background-color: #0056b3;
-      }
-      .calc-btn {
-        background-color: #008751; /* Ethiopian Flag Green */
-        color: white;
-        border: none;
-        width: 100%;
-        padding: 14px;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 6px;
-        cursor: pointer;
-        margin-top: 5px;
-        transition: background 0.2s;
-      }
-      .calc-btn:hover {
-        background-color: #00663d;
-      }
-      #result {
-        margin-top: 20px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-left: 5px solid #008751;
-        border-radius: 4px;
-        font-size: 18px;
-        font-weight: bold;
-        text-align: center;
-        display: none;
-      }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            max-width: 450px;
+            width: 100%;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 10px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #e4e6eb;
+        }
+        .input-group:last-of-type {
+            border-bottom: none;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+            background-color: #fff;
+        }
+        .coordinates-row {
+            display: flex;
+            gap: 10px;
+        }
+        .gps-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            font-weight: bold;
+            width: 100%;
+        }
+        .gps-btn:hover {
+            background-color: #0056b3;
+        }
+        .calc-btn {
+            background-color: #008751; /* Ethiopian Flag Green */
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background 0.2s;
+        }
+        .calc-btn:hover {
+            background-color: #00663d;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #008751;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
     <div class="container">
-      <h2>Distance Calculator</h2>
-
-      <!-- START LOCATION -->
-      <div class="input-group">
-        <label>1. Your Location (Start)</label>
-        <button class="gps-btn" id="useGpsBtn">
-          📍 Detect My Location (GPS + IP)
-        </button>
-
-        <select id="startPreset" onchange="applyPreset('start', this.value)">
-          <option value="">-- Or Choose an Ethiopian City --</option>
-          <!-- Dynamically populated by JS -->
-        </select>
-
-        <div class="coordinates-row">
-          <input
-            type="number"
-            step="any"
-            id="startLat"
-            placeholder="Latitude"
-          />
-          <input
-            type="number"
-            step="any"
-            id="startLon"
-            placeholder="Longitude"
-          />
+        <h2>Distance Calculator</h2>
+        
+        <div class="input-group">
+            <label>1. Your Location (Start)</label>
+            <button class="gps-btn" id="useGpsBtn">📍 Detect My Location (GPS + IP)</button>
+            
+            <select id="startPreset" onchange="applyPreset('start', this.value)">
+                <option value="">-- Or Choose an Ethiopian City --</option>
+                </select>
+            
+            <div class="coordinates-row">
+                <input type="number" step="any" id="startLat" placeholder="Latitude">
+                <input type="number" step="any" id="startLon" placeholder="Longitude">
+            </div>
         </div>
-      </div>
 
-      <!-- DESTINATION LOCATION -->
-      <div class="input-group">
-        <label>2. Destination Location</label>
-        <select id="destPreset" onchange="applyPreset('dest', this.value)">
-          <option value="">-- Choose Destination City --</option>
-          <!-- Dynamically populated by JS -->
-        </select>
-
-        <div class="coordinates-row">
-          <input type="number" step="any" id="destLat" placeholder="Latitude" />
-          <input
-            type="number"
-            step="any"
-            id="destLon"
-            placeholder="Longitude"
-          />
+        <div class="input-group">
+            <label>2. Destination Location</label>
+            <select id="destPreset" onchange="applyPreset('dest', this.value)">
+                <option value="">-- Choose Destination City --</option>
+                </select>
+            
+            <div class="coordinates-row">
+                <input type="number" step="any" id="destLat" placeholder="Latitude">
+                <input type="number" step="any" id="destLon" placeholder="Longitude">
+            </div>
         </div>
-      </div>
 
-      <button class="calc-btn" id="calculateBtn">Calculate Distance</button>
+        <button class="calc-btn" id="calculateBtn">Calculate Distance</button>
 
-      <div id="result"></div>
+        <div id="result"></div>
     </div>
 
     <script>
-      const ethiopianCities = [
-        { name: "Addis Ababa (Meskel Square)", lat: 9.0104, lon: 38.7615 },
-        { name: "Adama (Nazret)", lat: 8.5414, lon: 39.2689 },
-        { name: "Arba Minch", lat: 6.0215, lon: 37.554 },
-        { name: "Asosa", lat: 10.0646, lon: 34.5437 },
-        { name: "Bahir Dar", lat: 11.5948, lon: 37.388 },
-        { name: "Bishoftu (Debrezeit)", lat: 8.75, lon: 38.9817 },
-        { name: "Dessie", lat: 11.1226, lon: 39.635 },
-        { name: "Dire Dawa", lat: 9.5913, lon: 41.8566 },
-        { name: "Gambela", lat: 8.25, lon: 34.5833 },
-        { name: "Gondar", lat: 12.6075, lon: 37.4592 },
-        { name: "Harar", lat: 9.3118, lon: 42.1284 },
-        { name: "Haramaya", lat: 9.4124, lon: 42.0221 },
-        { name: "Hawassa", lat: 7.0481, lon: 38.4786 },
-        { name: "Jijiga", lat: 9.3509, lon: 42.8004 },
-        { name: "Jimma", lat: 7.6667, lon: 36.8333 },
-        { name: "Mekele", lat: 13.4967, lon: 39.4768 },
-        { name: "Semera", lat: 11.7922, lon: 41.0086 },
-        { name: "Shashamane", lat: 7.201, lon: 38.5954 },
-        { name: "Sodo (Wolaita)", lat: 6.8642, lon: 37.7628 },
-      ];
+        // Comprehensive list of major Ethiopian cities and locations
+        const ethiopianCities = [
+            { name: "Addis Ababa (Meskel Square)", lat: 9.0104, lon: 38.7615 },
+            { name: "Adama (Nazret)", lat: 8.5414, lon: 39.2689 },
+            { name: "Arba Minch", lat: 6.0215, lon: 37.5540 },
+            { name: "Asosa", lat: 10.0646, lon: 34.5437 },
+            { name: "Bahir Dar", lat: 11.5948, lon: 37.3880 },
+            { name: "Bishoftu (Debrezeit)", lat: 8.7500, lon: 38.9817 },
+            { name: "Dessie", lat: 11.1226, lon: 39.6350 },
+            { name: "Dire Dawa", lat: 9.5913, lon: 41.8566 },
+            { name: "Gambela", lat: 8.2500, lon: 34.5833 },
+            { name: "Gondar", lat: 12.6075, lon: 37.4592 },
+            { name: "Harar", lat: 9.3118, lon: 42.1284 },
+            { name: "Haramaya", lat: 9.4124, lon: 42.0221 },
+            { name: "Hawassa", lat: 7.0481, lon: 38.4786 },
+            { name: "Jijiga", lat: 9.3509, lon: 42.8004 },
+            { name: "Jimma", lat: 7.6667, lon: 36.8333 },
+            { name: "Mekele", lat: 13.4967, lon: 39.4768 },
+            { name: "Semera", lat: 11.7922, lon: 41.0086 },
+            { name: "Shashamane", lat: 7.2010, lon: 38.5954 },
+            { name: "Sodo (Wolaita)", lat: 6.8642, lon: 37.7628 }
+        ];
 
-      window.onload = function () {
-        const startSelect = document.getElementById("startPreset");
-        const destSelect = document.getElementById("destPreset");
+        // Populate dropdown selectors on window load
+        window.onload = function() {
+            const startSelect = document.getElementById('startPreset');
+            const destSelect = document.getElementById('destPreset');
+            
+            ethiopianCities.forEach((city, index) => {
+                let opt1 = document.createElement('option');
+                opt1.value = index;
+                opt1.textContent = city.name;
+                startSelect.appendChild(opt1);
 
-        ethiopianCities.forEach((city, index) => {
-          let opt1 = document.createElement("option");
-          opt1.value = index;
-          opt1.textContent = city.name;
-          startSelect.appendChild(opt1);
+                let opt2 = document.createElement('option');
+                opt2.value = index;
+                opt2.textContent = city.name;
+                destSelect.appendChild(opt2);
+            });
+        };
 
-          let opt2 = document.createElement("option");
-          opt2.value = index;
-          opt2.textContent = city.name;
-          destSelect.appendChild(opt2);
-        });
-      };
-
-      function applyPreset(type, index) {
-        if (index === "") return;
-        const city = ethiopianCities[index];
-        if (type === "start") {
-          document.getElementById("startLat").value = city.lat;
-          document.getElementById("startLon").value = city.lon;
-        } else {
-          document.getElementById("destLat").value = city.lat;
-          document.getElementById("destLon").value = city.lon;
-        }
-      }
-
-      function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-      }
-
-      // Advanced Location Fetcher: Tries Browser GPS, falls back to IP Geolocation
-      document.getElementById("useGpsBtn").addEventListener("click", () => {
-        const btn = document.getElementById("useGpsBtn");
-        btn.textContent = "⌛ Trying Browser GPS...";
-
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              // High precision device GPS succeeded
-              document.getElementById("startLat").value =
-                position.coords.latitude.toFixed(6);
-              document.getElementById("startLon").value =
-                position.coords.longitude.toFixed(6);
-              document.getElementById("startPreset").value = "";
-              btn.textContent = "📍 Location Loaded (Device GPS)";
-            },
-            (error) => {
-              // Browser GPS failed or was blocked. Switching to network IP geolocation.
-              btn.textContent = "🌐 GPS failed. Fetching via Network IP...";
-              fetchIpLocation(btn);
-            },
-            { enableHighAccuracy: true, timeout: 5000 }, // Force high accuracy mode
-          );
-        } else {
-          fetchIpLocation(btn);
-        }
-      });
-
-      // Fallback function using a free IP API
-      function fetchIpLocation(buttonElement) {
-        fetch("http://ip-api.com/json/")
-          .then((response) => response.json())
-          .then((data) => {
-            if (data && data.status === "success") {
-              document.getElementById("startLat").value = data.lat.toFixed(6);
-              document.getElementById("startLon").value = data.lon.toFixed(6);
-              document.getElementById("startPreset").value = "";
-              buttonElement.textContent = `📍 Location Loaded (Network: ${data.city || "Ethiopia"})`;
+        // When user picks a city from dropdown, push values to inputs
+        function applyPreset(type, index) {
+            if (index === "") return;
+            const city = ethiopianCities[index];
+            if (type === 'start') {
+                document.getElementById('startLat').value = city.lat;
+                document.getElementById('startLon').value = city.lon;
             } else {
-              alert(
-                "Could not detect location automatically. Please use the dropdown or input coordinates manually.",
-              );
-              buttonElement.textContent = "📍 Detect My Location (GPS + IP)";
+                document.getElementById('destLat').value = city.lat;
+                document.getElementById('destLon').value = city.lon;
             }
-          })
-          .catch((err) => {
-            alert("Network error trying to fetch location.");
-            buttonElement.textContent = "📍 Detect My Location (GPS + IP)";
-          });
-      }
-
-      document.getElementById("calculateBtn").addEventListener("click", () => {
-        const lat1 = parseFloat(document.getElementById("startLat").value);
-        const lon1 = parseFloat(document.getElementById("startLon").value);
-        const lat2 = parseFloat(document.getElementById("destLat").value);
-        const lon2 = parseFloat(document.getElementById("destLon").value);
-        const resultDiv = document.getElementById("result");
-
-        if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) {
-          resultDiv.style.display = "block";
-          resultDiv.style.borderLeftColor = "#dc3545";
-          resultDiv.innerHTML =
-            "⚠️ Please assign valid numeric values for all fields.";
-          return;
         }
 
-        const distance = calculateHaversineDistance(lat1, lon1, lat2, lon2);
-        resultDiv.style.display = "block";
-        resultDiv.style.borderLeftColor = "#008751";
+        // Haversine Math Formula
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius in KM
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
 
-        resultDiv.innerHTML = `🏁 Distance: ${distance.toFixed(2)} KM`;
-      });
+        // Advanced Location Fetcher: Tries Browser GPS, falls back to SECURE IP Geolocation
+        document.getElementById('useGpsBtn').addEventListener('click', () => {
+            const btn = document.getElementById('useGpsBtn');
+            btn.textContent = "⌛ Trying Browser GPS...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // High precision device GPS succeeded
+                        document.getElementById('startLat').value = position.coords.latitude.toFixed(6);
+                        document.getElementById('startLon').value = position.coords.longitude.toFixed(6);
+                        document.getElementById('startPreset').value = ""; 
+                        btn.textContent = "📍 Location Loaded (Device GPS)";
+                    },
+                    (error) => {
+                        // Browser GPS failed or was blocked. Switching to network IP geolocation via HTTPS.
+                        btn.textContent = "🌐 GPS failed. Fetching via HTTPS Network IP...";
+                        fetchIpLocation(btn);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                fetchIpLocation(btn);
+            }
+        });
+
+        // Fallback function using a free HTTPS-supported IP API 
+        function fetchIpLocation(buttonElement) {
+            fetch('https://ipapi.co/json/')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response error');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.latitude && data.longitude) {
+                        document.getElementById('startLat').value = data.latitude.toFixed(6);
+                        document.getElementById('startLon').value = data.longitude.toFixed(6);
+                        document.getElementById('startPreset').value = ""; 
+                        buttonElement.textContent = `📍 Location Loaded (Network: ${data.city || 'Ethiopia'})`;
+                    } else {
+                        throw new Error('Invalid data format received');
+                    }
+                })
+                .catch(err => {
+                    console.error("IP Geolocation Error: ", err);
+                    alert("Could not detect location automatically over HTTPS. Please use the dropdown or input coordinates manually.");
+                    buttonElement.textContent = "📍 Detect My Location (GPS + IP)";
+                });
+        }
+
+        // Trigger Calculation process
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const lat1 = parseFloat(document.getElementById('startLat').value);
+            const lon1 = parseFloat(document.getElementById('startLon').value);
+            const lat2 = parseFloat(document.getElementById('destLat').value);
+            const lon2 = parseFloat(document.getElementById('destLon').value);
+            const resultDiv = document.getElementById('result');
+
+            if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) {
+                resultDiv.style.display = "block";
+                resultDiv.style.borderLeftColor = "#dc3545";
+                resultDiv.innerHTML = "⚠️ Please assign valid numeric values for all fields.";
+                return;
+            }
+
+            const distance = calculateHaversineDistance(lat1, lon1, lat2, lon2);
+            resultDiv.style.display = "block";
+            resultDiv.style.borderLeftColor = "#008751";
+            
+            resultDiv.innerHTML = `🏁 Distance: ${distance.toFixed(2)} KM`;
+        });
     </script>
-  </body>
+</body>
 </html>
